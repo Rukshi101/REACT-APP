@@ -1,21 +1,28 @@
 
-import React, {useEffect} from 'react'
+import React, {useEffect, useRef,useContext} from 'react'
 
 import classes from './Cockpit.css';
+import AuthContext from '../../context/auth-context'
+
 
 const cockpit = (props) =>{
+  const toggleBtnRef = useRef(null);
+  const authContext = useContext(AuthContext);
+
+  console.log(authContext.authenticated);
   useEffect(() =>{
     console.log('[Cockpit.js] useEffect');
 
-    const timer = setTimeout(()=>{
-      alert('Saved data to cloud!');
+    // const timer = setTimeout(()=>{
+    //   alert('Saved data to cloud!');
 
-    },1000); 
+    // },1000); 
+    toggleBtnRef.current.click();
     return() =>{
-      clearTimeout(timer);
+      // clearTimeout(timer);
       console.log('[Cockpit.js] cleanup work in use effect');
     };
-    
+    //USE EFFECT RUNS AFTER EVER RENDER CYCLE
   },[]);
 
   useEffect(() =>{
@@ -29,12 +36,12 @@ const cockpit = (props) =>{
 
     let btnClass = '';
     btnClass = (classes.Red);
-if(props.persons.length <=2){
+if(props.personsLength <=2){
   // classes.push('red'); 
   assignedClasses.push(classes.red);
 }
 
-if (props.persons.length<=1){
+if (props.personsLength<=1){
   // classes.push('bold');
   assignedClasses.push(classes.bold);
 }
@@ -48,15 +55,23 @@ if (props.persons.length<=1){
         {/* <StyledButton alt = {this.state.showPer
         sons}
          */}
-         <button 
+         <button ref = {toggleBtnRef}
          className = {btnClass}
           onClick = {props.clicked}
 
         //no this because its not a class property
         >Switch name
         </button>
+  
+      <button onClick ={authContext.login}>Log In</button> 
+     
         </div>
     );
         };
 
-export default cockpit;
+export default React.memo(cockpit);
+
+//optimize functional based components using React.memo
+
+//stores a snapshot of a component only if input of this component changes then react will rerender
+

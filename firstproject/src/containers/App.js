@@ -4,7 +4,11 @@ import React, { Component } from 'react';
 import Persons from '../component/Persons/Persons.js';
 import classes from './App.css';
 import Cockpit from '../component/Cockpit/Cockpit'
+import withClass from '../hoc/WithClass';
+import AuthContext from '../context/auth-context'
 
+//import COMPONENTS WITH CAPS BUT FUNCTIONS WITH LOWERCASE
+import Auxillary from '../hoc/Auxillary';
 //radium allows us to use inline styles with pseduo selectros and media quieries
 // import Radium, { StyleRoot} from 'radium';
 // ./ means relative folder
@@ -59,7 +63,9 @@ state = {
   ],
   otherState:"some other value",
   showPersons:false,
-  showCockpit :true
+  showCockpit :true,
+  changeCounter:0,
+  authenticated:false
 };
 //state and props changes causes updates to the DOM
 //
@@ -85,9 +91,13 @@ person.name =event.target.value;
 const persons =  [...this.state.persons];
 persons[personIndex] =person;
 
-  this.setState(
-   {persons:persons}
-    )
+  this.setState((prevState,props) =>{
+    //best option for state updates that depend on the old states being immediate
+   return {
+     persons:persons,
+    changeCounter:prevState.changeCounter+1}
+   
+   });
     //sets the state to updated persons array
     //react looks for this state and merges this state with old state from before
   //allows use to update special state property
@@ -116,6 +126,10 @@ const doesShow = this.state.showPersons;
 this.setState({showPersons: !doesShow});
 //if does show is falsse it sets show persons to true
 }
+
+loginHandler = () =>{
+  this.setState({authenticated:true});
+};
 
 render(){
 console.log ('[App.js] render');
@@ -148,6 +162,8 @@ if(this.state.showPersons){
     persons = {this.state.persons}
     clicked = {this.deletePersonHandler}
     changed = {this.nameChangedHandler}
+    isAuthenticated = {this.state.authenticated}
+  
     //passing these properties so that persons component can access using props.propertyname
     ></Persons>;
     {/* single curly braces is used to render something dynamic within jsx code */}
@@ -171,17 +187,22 @@ if(this.state.showPersons){
 
     return (
       // <StyleRoot>
-      <div className={classes.App}>
+      <Auxillary>
         <button onClick = {() =>{
           this.setState({showCockpit: false})
         }}
         >Remove cockpit</button>
+
+        <AuthContext.Provider value = {{
+          authenticated:this.state.authenticated,
+          login: this.loginHandler}}>
         {this.state.showCockpit ?(
         <Cockpit 
         title = {this.props.appTitle}
         showPersons = {this.state.showPersons}
-        persons = {this.state.persons}
+        personsLength = {this.state.persons.length}
         clicked = {this.togglePersonsHandler}
+        login = {this.loginHandler}
       //two props that we want to access
         /> ):null}
          
@@ -193,8 +214,8 @@ if(this.state.showPersons){
        {/* ternary expression used as if statement while null at the bottom is the else condiditon
         */}
        {persons}
-
-      </div>
+       </AuthContext.Provider>
+      </Auxillary>
       // </StyleRoot>
     )
     //reusable component Person and can configure it
@@ -204,7 +225,7 @@ if(this.state.showPersons){
     //nest everything in one root element that you can return
       };
 }
-  export default App;/*Radium (App)*/
+  export default withClass(App,classes.App);/*Radium (App)*/
 //radium is a higher order component
 
  

@@ -1,8 +1,13 @@
 import React, {Component} from 'react'
+//import fragment and use Fragment as a tag to replace aux function
 import Radium from 'radium'
+import withClass from '../../../hoc/WithClass';
 import  './Person.css';
 import styled from 'styled-components'
 import classes from './Person.css'
+import Auxillary from '../../../hoc/Auxillary'
+import PropTypes from 'prop-types';
+import AuthContext from '../../../context/auth-context'
 
 //thanks to webpack we can import css
 //automatic prefixing to work in as many broswers as possible
@@ -23,6 +28,16 @@ import classes from './Person.css'
 //styled div is a class based componetn
 
 class Person extends Component{
+constructor(props){
+    super(props);
+    this.inputElementRef = React.createRef();
+
+}
+static contextType = AuthContext;
+componentDidMount(){
+    this.inputElementRef.current.focus();
+    console.log(this.context.authenticated);
+}
 render(){
 
     console.log('[Person.js] rendering...');
@@ -38,19 +53,33 @@ render(){
         
         
         
-        <div>
-        
-        //styled elemetnt has an html elementas methods for every html element you can think
-        <div className = {classes.Person}>
+       <Auxillary>
+           
+        {this.context.authenticated ?   <p>AUTHENTICATED!</p> : <p>Please Log in!</p>
+}
+         
+         
     <p onClick = {this.props.click}>I'm {this.props.name} and I am {this.props.age}</p>
     {/* props accessed with this keyword because they are properties of this class */}
     <p>{this.props.children}</p>
-<input type = "text" onChange = {this.props.changed} value = {this.props.name}/>
-    </div>
-    </div>
+<input type = "text" 
+ref ={this.inputElementRef}
+onChange = {this.props.changed} 
+value = {this.props.name}/>
+</Auxillary>
     )
 };
 }
+Person.propTypes ={
+    click:PropTypes.func,
+    name:PropTypes.string,
+    age:PropTypes.number,
+    changed:PropTypes.func
+};
+//prop-types package allows you to get warnings for these props if used incorrectly by the people on your team
+//you define the type of your props here for this to happen.
+//this object givecs you the type of data each prop uses.
+
 
 //a component is a function returning some jsx
     //single curly braces to run dynamic content as JS
